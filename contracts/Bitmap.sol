@@ -14,7 +14,6 @@ struct RGB {
 
 struct Bitmap {
     bytes data;
-    uint256 linePadding;
     uint256 lineSize;
 }
 
@@ -23,10 +22,10 @@ library BitmapLib {
     uint256 constant pixelSize = 3;
 
     function init(Bitmap memory bitmap, XY memory size) internal pure {
-        bitmap.linePadding = (uint256(size.y) * pixelSize) % 4 == 0
+        uint256 linePadding = (uint256(size.y) * pixelSize) % 4 == 0
             ? 0
             : 4 - ((uint256(size.y) * pixelSize) % 4);
-        bitmap.lineSize = uint256(size.y) * pixelSize + bitmap.linePadding;
+        bitmap.lineSize = uint256(size.y) * pixelSize + linePadding;
         uint256 bodySize = bitmap.lineSize * uint256(size.x);
         uint256 fileSize = headerSize + bodySize;
         bitmap.data = new bytes(fileSize);
@@ -56,6 +55,17 @@ library BitmapLib {
         bitmap.data[index] = pixel.blue;
         bitmap.data[index + 1] = pixel.green;
         bitmap.data[index + 2] = pixel.red;
+    }
+
+    function setBody(Bitmap memory bitmap, bytes memory body) internal pure {
+        uint256 bodyLength = body.length;
+        require(
+            bitmap.data.length == headerSize + bodyLength,
+            "invalid body size"
+        );
+        for (uint256 i = 0; i < bodyLength; i++) {
+            bitmap.data[headerSize + i] = body[i];
+        }
     }
 
     function setUint32(
