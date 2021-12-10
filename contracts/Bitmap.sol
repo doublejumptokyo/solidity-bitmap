@@ -22,11 +22,11 @@ library BitmapLib {
     uint256 constant pixelSize = 3;
 
     function init(Bitmap memory bitmap, XY memory size) internal pure {
-        uint256 linePadding = (uint256(size.y) * pixelSize) % 4 == 0
+        uint256 linePadding = (uint256(size.x) * pixelSize) % 4 == 0
             ? 0
-            : 4 - ((uint256(size.y) * pixelSize) % 4);
-        bitmap.lineSize = uint256(size.y) * pixelSize + linePadding;
-        uint256 bodySize = bitmap.lineSize * uint256(size.x);
+            : 4 - ((uint256(size.x) * pixelSize) % 4);
+        bitmap.lineSize = uint256(size.x) * pixelSize + linePadding;
+        uint256 bodySize = bitmap.lineSize * uint256(size.y);
         uint256 fileSize = headerSize + bodySize;
         bitmap.data = new bytes(fileSize);
 
